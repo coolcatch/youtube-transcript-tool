@@ -1,6 +1,26 @@
 # HANDOFF: YouTube Transcript Tool
 
-Written 2026-11-21 (America/Toronto) by Grok Bot for **the next Grok / AI agent**. Assume you have **no access** to the chat that produced this. Everything you need is here and in the code.
+Written 2026-11-21 (America/Toronto), updated 02:07 EST the same day with the deployment status, by Grok Bot for **the next Grok / AI agent**. Assume you have **no access** to the chat that produced this. Everything you need is here and in the code.
+
+---
+
+## 0. Current deployment status (updated 2026-11-21 02:07 EST)
+
+- **Live URL: (ask Lisa / see Vercel dashboard)**
+- **Deployed on Vercel** by Lisa from `coolcatch/youtube-transcript-tool`, branch `main`, after she merged PR #1. Pushes to `main` auto-deploy.
+- **Confirmed: YouTube blocks direct fetching from Vercel.** The primary InnerTube fetcher fails from Vercel's datacenter IPs. It still works from the Grok Bot box, so "it works locally" does **not** mean it works in production.
+- **The Supadata fallback is active and Lisa confirmed it works** (02:07 EST, Nov 21). Vercel env vars: `TRANSCRIPT_FALLBACKS=thirdparty` and `TRANSCRIPT_API_KEY=<Supadata key>`. `TRANSCRIPT_API_PROVIDER` is left at its default, `supadata`. So in production nearly every uncached transcript is a Supadata request (`source: "supadata"` in the API JSON).
+- **Plan: Supadata free tier, 100 transcripts per month, no rollover.** Paid plans start at $5/mo, billed annually, per what Lisa saw on Nov 21. Check supadata.ai/pricing before quoting it.
+- **The key lives only in Vercel's environment variables** (Project → Settings → Environment Variables). It is not in the repo, the Drive or any log. Never copy it anywhere else. To rotate it, change it in Vercel, then redeploy.
+- Repeat views of the same video are served from Vercel's CDN cache (`s-maxage=3600`) and the in-memory cache, so they don't use credits. Each new video, or each new language of a video, uses one credit.
+
+### ⚠️ Main risk: the monthly credits run out
+When the 100 free credits are used up, Supadata rejects requests (likely HTTP 402 or 429). The chain then has nothing left: InnerTube is `BLOCKED`, and Supadata throws `UPSTREAM`, so **every new transcript fails**. Today the user sees the generic message "YouTube didn't answer properly. Please try again.", which is misleading.
+What the next agent should consider:
+1. **A friendly "monthly limit reached" message.** In `src/lib/fetchers/thirdParty.ts`, map Supadata 402/429 (and any quota error body) to a new `TranscriptError` code, e.g. `QUOTA_EXCEEDED` (HTTP 429). Add it to `types.ts` (`STATUS`) and `TranscriptView.tsx` (`FRIENDLY`). Wording idea: "This free tool has reached its monthly transcript limit. Please try again next month." Make `getTranscript()` surface this error rather than the earlier `BLOCKED`. Add unit tests with a mocked `fetch`.
+2. **A cheaper or extra route:** set `YT_PROXY_URL` (a residential proxy) so the free InnerTube fetcher works again on Vercel, and keep Supadata as the fallback only. Ask Lisa before spending money.
+3. **Credit protection:** per-IP rate limiting (roadmap #3) and a longer CDN cache (e.g. `s-maxage=86400`), so bots or refreshes don't burn the 100 credits.
+4. Optionally log `source` and failures to Vercel logs, to see how fast credits are used. No user tracking.
 
 ---
 
@@ -29,9 +49,9 @@ Written 2026-11-21 (America/Toronto) by Grok Bot for **the next Grok / AI agent*
 | API route + CLI | ✅ Done, tested manually against real YouTube |
 | Unit tests | ✅ 59 passing (`npm test`) |
 | `npm run build`, `npm run lint`, `tsc` | ✅ Clean |
-| Vercel deploy | ⏸ **Not deployed** (waiting for Lisa). Repo is zero-config Vercel-ready. |
-| Works from Vercel IPs? | ❓ **Unknown until deployed.** YouTube often blocks cloud IPs (see §7). |
-| Third-party API fallback (Supadata) | ⚠️ Implemented from docs, **untested** (no key) |
+| Vercel deploy | ✅ **Live on Vercel** (Lisa, Nov 21). See §0. URL: (ask Lisa / see Vercel dashboard) |
+| Works from Vercel IPs? | ❌ **Direct YouTube fetch is blocked on Vercel** (confirmed). Production relies on Supadata (§0, §7). |
+| Third-party API fallback (Supadata) | ✅ **Active in production, confirmed working by Lisa** (free plan, 100/month) |
 | Whisper fallback | ⚠️ Implemented, **untested** (no key); needs `yt-dlp`, so CLI/self-host only |
 
 ---
@@ -128,7 +148,7 @@ TranscriptError  codes: INVALID_ID 400 · VIDEO_UNAVAILABLE 404 · NO_CAPTIONS 4
 
 ## 7. YouTube blocking: mitigations
 
-YouTube rate-limits and bot-checks **datacenter IPs** (AWS/GCP, which includes Vercel). From the build box (a VM) it worked fine; from Vercel it is **untested**. Mitigation ladder, cheapest first:
+YouTube rate-limits and bot-checks **datacenter IPs** (AWS/GCP, which includes Vercel). From the build box (a VM) it worked fine. **From Vercel it is blocked (confirmed Nov 21)**, so production uses mitigation 3 (Supadata). Mitigation ladder, cheapest first:
 1. **Caching** (already on): CDN `s-maxage` plus memory cache, so a repeated video never hits YouTube.
 2. **`YT_PROXY_URL`**: a residential/rotating HTTP proxy. All YouTube calls go through it (undici `ProxyAgent`). Paid proxies are ~$3–10/GB, and transcripts are tiny.
 3. **`TRANSCRIPT_FALLBACKS=thirdparty` + `TRANSCRIPT_API_KEY`**: Supadata (or add another provider). They handle blocking for you. Paid per request with a free tier.
@@ -170,12 +190,13 @@ npm run build
 | Next 16 (not 15) | Next 15 pulled a vulnerable postcss (npm audit high). 16 has 0 vulnerabilities. Note: `next lint` is gone in 16, so lint runs `eslint .`. |
 
 ## 12. Known limitations
-- Unknown behaviour from Vercel IPs (see §7). This is the #1 risk.
+- **Production depends on Supadata's free 100/month quota** (§0). When it runs out, new transcripts fail with a misleading generic error. This is the #1 risk.
+- Direct YouTube fetching is blocked from Vercel (confirmed).
 - In-memory cache is per serverless instance and resets on cold start.
 - No rate limiting. A public deployment could be abused to hammer YouTube through our IP.
 - The language picker shows one entry per language code. If a video has both a creator and an auto track for the same code, the creator one wins.
 - Paragraph splitting is heuristic (sentence ends + ~350–900 chars + 4 s silences). Auto captions without punctuation become ~900-char blocks.
-- Supadata and Whisper fallbacks are untested. Whisper can't run on Vercel (needs the yt-dlp binary, 4.5 MB request limit, OpenAI's 25 MB file limit, so long videos need chunking).
+- The Supadata fallback is verified only by Lisa's manual check in production (no automated test against the real API). The Whisper fallback is untested. Whisper can't run on Vercel (needs the yt-dlp binary, 4.5 MB request limit, OpenAI's 25 MB file limit, so long videos need chunking).
 - No playlist/channel support, no history, no AI summary yet.
 - Live streams in progress and members-only/age-restricted videos return `VIDEO_UNAVAILABLE`/`NO_CAPTIONS`.
 
@@ -183,12 +204,12 @@ npm run build
 After each session append a timestamped America/Toronto entry to:
 - `/workspace/grok-studio-2026-11/00_ADMIN/WORK_LOG.md` (on the Grok Bot box), and
 - the **Work Log** tab of the studio tracker sheet <https://docs.google.com/spreadsheets/d/10fCnBZVKdicLvjI8aQ07mzxcG3_5GbDFMnffn-B3OGw/edit>.
-- Keep the **Templates & Generators** tab row for this tool current (status `Needs Testing` until deployed and checked on Vercel).
+- Keep the **Templates & Generators** tab row for this tool (`TPL-YT-TRANSCRIPT`) current. Its status is `Ready for Lisa Review` as of Nov 21 (live on Vercel, Supadata fallback).
 - Update `CHANGELOG.md` with each change.
 - Copies of this file and README live in Drive: studio folder → `06_TEMPLATES_AND_GENERATORS`. Re-upload after big changes.
 
 ## 14. Ranked roadmap
-1. **Deploy to Vercel (after Lisa's OK) and verify it works from Vercel IPs.** If blocked, wire a proxy or the Supadata key and document the cost.
+1. ~~Deploy to Vercel~~ ✅ done Nov 21. **New #1: handle the Supadata quota** (friendly `QUOTA_EXCEEDED` message + tests), then decide with Lisa on a proxy or a paid plan (§0).
 2. **CI:** a GitHub Actions workflow running `npm ci && npm run lint && npm run typecheck && npm test && npm run build` on PRs.
 3. **Rate limiting** on `/api/transcript` (e.g. Upstash Redis or Vercel KV token bucket per IP) before any public launch.
 4. **AI summary / "Clean transcript" / notes** (like youtubetotranscript's AI Features: clean transcript, Cornell notes, key points). Server route with `AI_API_KEY` (xAI or OpenAI-compatible), off by default, streamed. Lisa has xAI API credits.
@@ -200,7 +221,9 @@ After each session append a timestamped America/Toronto entry to:
 10. Persistent cache (Vercel KV / Blob) shared across instances.
 
 ## 15. Your first task, next agent
-1. Read this file, then run `npm ci && npm test && npm run build` and `npm run transcript -- https://youtu.be/Eux-VGsdw8o | head -c 300` to confirm the YouTube fetch still works.
-2. Check the PR `feature/transcript-app` on GitHub. **Do not merge without Lisa's OK.**
-3. Ask Lisa (via your owner/parent) whether she approves a Vercel deploy. If yes, follow §10 and test from the live URL. Record the result (works / blocked) in WORK_LOG.md, the tracker and CHANGELOG.
-4. Then do roadmap #2 (CI) on a new branch + PR.
+1. Read §0 (deployment status), then run `npm ci && npm test && npm run build`.
+2. Get the live URL from Lisa (or her Vercel dashboard) and write it into §0 in place of the placeholder. Smoke-test it with `https://youtu.be/Eux-VGsdw8o`. Do not test-spam it: every new video uses one of the 100 monthly Supadata credits.
+3. **Implement the "monthly limit reached" handling** described in §0 (new `QUOTA_EXCEEDED` code, friendly UI message, unit tests with mocked 402/429 responses) on a new branch, then open a PR. **Do not merge without Lisa's OK.**
+4. Suggest to Lisa (through your owner/parent) the credit-saving options: a longer CDN cache, rate limiting, or a residential `YT_PROXY_URL` to bring back free direct fetching. She decides on any spending.
+5. Then do roadmap #2 (CI) on a new branch + PR.
+6. Log everything (§13) and update CHANGELOG.md.

@@ -92,14 +92,20 @@ All optional. Copy `.env.example` to `.env.local` for local dev. **Never commit 
 
 ## Deploy to Vercel
 
+> **Current status (2026-11-21):** live on Vercel. Live URL: (ask Lisa / see Vercel dashboard).
+> YouTube blocks direct fetching from Vercel's servers, so production uses the **Supadata** fallback
+> (`TRANSCRIPT_FALLBACKS=thirdparty` + `TRANSCRIPT_API_KEY`, set only in Vercel env vars), on the free plan of
+> **100 transcripts/month, no rollover**. When the credits run out, new transcripts fail until the next month.
+> See HANDOFF.md §0.
+
 The repo is Vercel-ready with zero config (framework auto-detected, Node runtime for the API route).
 
 1. Sign in at <https://vercel.com> (sign up with GitHub).
 2. **Add New → Project → Import** this GitHub repository. Allow Vercel's GitHub app to see it if asked.
 3. Framework preset: **Next.js** (auto). Build command `npm run build`, output default. Leave the root directory as `/`.
-4. Environment variables: none needed. Add any from the table above if you want a proxy or fallbacks.
+4. Environment variables: none are needed for the app to start. **But on Vercel YouTube blocks direct fetching**, so add a fallback: `TRANSCRIPT_FALLBACKS=thirdparty` and `TRANSCRIPT_API_KEY=<your Supadata key>` (free key at supadata.ai, 100 transcripts/month). Or add a residential `YT_PROXY_URL`. Never put the key in the repo.
 5. Click **Deploy**. You get a `https://<project>.vercel.app` URL.
-6. Test: open the URL, paste `https://youtu.be/Eux-VGsdw8o`. If you see "YouTube is temporarily blocking our server", YouTube is blocking Vercel's IPs. Set `YT_PROXY_URL` (residential proxy) or enable the `thirdparty` fallback, then redeploy. See HANDOFF.md → *YouTube blocking*.
+6. Test: open the URL, paste `https://youtu.be/Eux-VGsdw8o`. If you see "YouTube is temporarily blocking our server", the fallback isn't set. Check the env vars from step 4 and **redeploy** (env var changes only apply to new deployments). See HANDOFF.md §0 and §7.
 7. Optional: **Settings → Domains** to add a custom domain.
 
 Every push to `main` then redeploys automatically, and every PR gets a preview URL.

@@ -2,6 +2,14 @@
 
 All notable changes to this project. Format: [Keep a Changelog](https://keepachangelog.com/), versions: SemVer.
 
+## [Unreleased] - 2026-11-21
+
+### Documentation
+- Deployed to Vercel by Lisa (PR #1 merged). Live URL: (ask Lisa / see Vercel dashboard).
+- Recorded that YouTube blocks direct fetching from Vercel. Production uses the Supadata fallback (free plan, 100 transcripts/month, no rollover; key only in Vercel env vars), which Lisa confirmed working at 02:07 EST.
+- HANDOFF.md: new §0 "Current deployment status" with the quota risk and next steps. Updated the status table, limitations, roadmap and the next agent's first task (friendly "monthly limit reached" handling).
+- README: deploy section now explains the Vercel blocking and the Supadata env vars.
+
 ## [0.1.0] - 2026-11-21
 
 ### Added
