@@ -4,7 +4,7 @@ All notable changes to this project. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased] - 2026-11-21
 
-### Documentation (final handoff, 12:30 EST)
+### Documentation (final handoff, 12:15 EST)
 - New `AI_HANDOFF.md`: a standalone handoff for any AI or developer (architecture, file map, verified status, known bugs, services, rules, prioritised tasks).
 - New `SECURITY_REVIEW.md`: key handling, client-bundle and git-history secret scans (gitleaks: clean), credit-abuse risk, validation and error handling, plus prioritised fixes F1–F9 (proposals only).
 - `README.md` rewritten: features, stack, local setup, extraction flow, Supadata integration, API, a full env var table (where each one belongs), Vercel deploy/maintenance/rollback, troubleshooting.

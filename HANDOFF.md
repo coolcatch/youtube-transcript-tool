@@ -1,6 +1,6 @@
 # HANDOFF: YouTube Transcript Tool
 
-> **2026-11-21 12:30 EST: the canonical, standalone handoff is now [`AI_HANDOFF.md`](./AI_HANDOFF.md)** (status, verification results, next tasks). Security findings are in [`SECURITY_REVIEW.md`](./SECURITY_REVIEW.md). This file is kept as the detailed engineering log (YouTube internals, decisions). Where they differ, AI_HANDOFF.md wins.
+> **2026-11-21 12:15 EST: the canonical, standalone handoff is now [`AI_HANDOFF.md`](./AI_HANDOFF.md)** (status, verification results, next tasks). Security findings are in [`SECURITY_REVIEW.md`](./SECURITY_REVIEW.md). This file is kept as the detailed engineering log (YouTube internals, decisions). Where they differ, AI_HANDOFF.md wins.
 
 Written 2026-11-21 (America/Toronto), updated 02:07 EST the same day with the deployment status, by Grok Bot for **the next Grok / AI agent**. Assume you have **no access** to the chat that produced this. Everything you need is here and in the code.
 

@@ -1,6 +1,6 @@
 # Security review: YouTube Transcript Tool
 
-- **Date:** 2026-11-21, 12:10–12:30 EST (America/Toronto). **Reviewer:** Grok Bot (AI assistant), for Lisa Villary.
+- **Date:** 2026-11-21, 12:06–12:15 EST (America/Toronto). **Reviewer:** Grok Bot (AI assistant), for Lisa Villary.
 - **Scope:** repo `coolcatch/youtube-transcript-tool` at `main` = `94475d5` (plus the docs-only branch `docs/deploy-status`), and the live deployment <https://youtube-transcript-tool-flax.vercel.app/>.
 - **Method:** source review, a full-history secret scan, inspection of the live client JavaScript, live error-path requests (none of which used Supadata), and 2 live transcript fetches that did use Supadata credits.
 - **Not covered:** Vercel and Supadata account settings (no dashboard access), and penetration testing beyond what's listed here.

@@ -2,7 +2,7 @@
 
 > **Standalone handoff for any AI coding assistant (ChatGPT, Claude, Cursor, Grok…) or developer.**
 > You need **no previous conversation**. Everything is here, in `README.md`, `SECURITY_REVIEW.md` and in the code.
-> Last updated **2026-11-21, 12:30 EST** (America/Toronto) by Grok Bot.
+> Last updated **2026-11-21, 12:15 EST** (America/Toronto) by Grok Bot.
 
 ---
 
@@ -92,7 +92,7 @@ Browser
 | `HANDOFF.md` | Earlier detailed engineering notes (decisions, YouTube internals) |
 | `CHANGELOG.md`, `DEPENDENCIES.md`, `LICENSE` | Changes, license inventory, MIT |
 
-## 4. Current status (verified 2026-11-21, 12:10–12:30 EST)
+## 4. Current status (verified 2026-11-21, 12:06–12:15 EST)
 
 **Production:**
 - Vercel project `youtube-transcript-tool` (team `lisas-projects-01adf54e`), production branch **`main`**, auto-deploy from GitHub.
