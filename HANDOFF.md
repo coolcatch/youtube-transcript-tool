@@ -1,12 +1,14 @@
 # HANDOFF: YouTube Transcript Tool
 
+> **2026-11-21 12:30 EST: the canonical, standalone handoff is now [`AI_HANDOFF.md`](./AI_HANDOFF.md)** (status, verification results, next tasks). Security findings are in [`SECURITY_REVIEW.md`](./SECURITY_REVIEW.md). This file is kept as the detailed engineering log (YouTube internals, decisions). Where they differ, AI_HANDOFF.md wins.
+
 Written 2026-11-21 (America/Toronto), updated 02:07 EST the same day with the deployment status, by Grok Bot for **the next Grok / AI agent**. Assume you have **no access** to the chat that produced this. Everything you need is here and in the code.
 
 ---
 
 ## 0. Current deployment status (updated 2026-11-21 02:07 EST)
 
-- **Live URL: (ask Lisa / see Vercel dashboard)**
+- **Live URL: https://youtube-transcript-tool-flax.vercel.app/**
 - **Deployed on Vercel** by Lisa from `coolcatch/youtube-transcript-tool`, branch `main`, after she merged PR #1. Pushes to `main` auto-deploy.
 - **Confirmed: YouTube blocks direct fetching from Vercel.** The primary InnerTube fetcher fails from Vercel's datacenter IPs. It still works from the Grok Bot box, so "it works locally" does **not** mean it works in production.
 - **The Supadata fallback is active and Lisa confirmed it works** (02:07 EST, Nov 21). Vercel env vars: `TRANSCRIPT_FALLBACKS=thirdparty` and `TRANSCRIPT_API_KEY=<Supadata key>`. `TRANSCRIPT_API_PROVIDER` is left at its default, `supadata`. So in production nearly every uncached transcript is a Supadata request (`source: "supadata"` in the API JSON).
@@ -49,7 +51,7 @@ What the next agent should consider:
 | API route + CLI | ✅ Done, tested manually against real YouTube |
 | Unit tests | ✅ 59 passing (`npm test`) |
 | `npm run build`, `npm run lint`, `tsc` | ✅ Clean |
-| Vercel deploy | ✅ **Live on Vercel** (Lisa, Nov 21). See §0. URL: (ask Lisa / see Vercel dashboard) |
+| Vercel deploy | ✅ **Live on Vercel** (Lisa, Nov 21). See §0. URL: https://youtube-transcript-tool-flax.vercel.app/ |
 | Works from Vercel IPs? | ❌ **Direct YouTube fetch is blocked on Vercel** (confirmed). Production relies on Supadata (§0, §7). |
 | Third-party API fallback (Supadata) | ✅ **Active in production, confirmed working by Lisa** (free plan, 100/month) |
 | Whisper fallback | ⚠️ Implemented, **untested** (no key); needs `yt-dlp`, so CLI/self-host only |
@@ -222,7 +224,7 @@ After each session append a timestamped America/Toronto entry to:
 
 ## 15. Your first task, next agent
 1. Read §0 (deployment status), then run `npm ci && npm test && npm run build`.
-2. Get the live URL from Lisa (or her Vercel dashboard) and write it into §0 in place of the placeholder. Smoke-test it with `https://youtu.be/Eux-VGsdw8o`. Do not test-spam it: every new video uses one of the 100 monthly Supadata credits.
+2. The live URL is https://youtube-transcript-tool-flax.vercel.app/. Smoke-test it with `https://youtu.be/Eux-VGsdw8o`. Do not test-spam it: every new video uses one of the 100 monthly Supadata credits.
 3. **Implement the "monthly limit reached" handling** described in §0 (new `QUOTA_EXCEEDED` code, friendly UI message, unit tests with mocked 402/429 responses) on a new branch, then open a PR. **Do not merge without Lisa's OK.**
 4. Suggest to Lisa (through your owner/parent) the credit-saving options: a longer CDN cache, rate limiting, or a residential `YT_PROXY_URL` to bring back free direct fetching. She decides on any spending.
 5. Then do roadmap #2 (CI) on a new branch + PR.

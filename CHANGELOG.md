@@ -4,8 +4,16 @@ All notable changes to this project. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased] - 2026-11-21
 
+### Documentation (final handoff, 12:30 EST)
+- New `AI_HANDOFF.md`: a standalone handoff for any AI or developer (architecture, file map, verified status, known bugs, services, rules, prioritised tasks).
+- New `SECURITY_REVIEW.md`: key handling, client-bundle and git-history secret scans (gitleaks: clean), credit-abuse risk, validation and error handling, plus prioritised fixes F1–F9 (proposals only).
+- `README.md` rewritten: features, stack, local setup, extraction flow, Supadata integration, API, a full env var table (where each one belongs), Vercel deploy/maintenance/rollback, troubleshooting.
+- `.env.example`: notes on where each variable belongs (still placeholders only).
+- Live URL recorded everywhere: https://youtube-transcript-tool-flax.vercel.app/
+- No application code changed.
+
 ### Documentation
-- Deployed to Vercel by Lisa (PR #1 merged). Live URL: (ask Lisa / see Vercel dashboard).
+- Deployed to Vercel by Lisa (PR #1 merged). Live URL: https://youtube-transcript-tool-flax.vercel.app/
 - Recorded that YouTube blocks direct fetching from Vercel. Production uses the Supadata fallback (free plan, 100 transcripts/month, no rollover; key only in Vercel env vars), which Lisa confirmed working at 02:07 EST.
 - HANDOFF.md: new §0 "Current deployment status" with the quota risk and next steps. Updated the status table, limitations, roadmap and the next agent's first task (friendly "monthly limit reached" handling).
 - README: deploy section now explains the Vercel blocking and the Supadata env vars.
