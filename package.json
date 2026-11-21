@@ -1,0 +1,48 @@
+{
+  "name": "youtube-transcript-tool",
+  "version": "0.1.0",
+  "description": "Paste a YouTube link, get a clean transcript. Next.js app, Vercel-ready.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "transcript": "tsx scripts/transcript.ts",
+    "screenshots": "tsx scripts/screenshots.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coolcatch/youtube-transcript-tool.git"
+  },
+  "keywords": [],
+  "author": "Lisa Villary",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coolcatch/youtube-transcript-tool/issues"
+  },
+  "homepage": "https://github.com/coolcatch/youtube-transcript-tool#readme",
+  "dependencies": {
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "undici": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "playwright": "^1.65.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20.9"
+  }
+}
